@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  opencc-srt-converter:
+    image: spawnpeekboi/opencc-srt-converter
+    volumes:
+      - /path/to/media:/media  # Path to your SRT files
+      - /path/to/data:/data     # Path for backups and logs
+    restart: unless-stopped
