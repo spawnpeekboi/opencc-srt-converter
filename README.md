@@ -34,12 +34,12 @@ To use the OpenCC SRT Converter Docker image, follow these steps:
     
 ```docker pull spawnpeekboi/opencc-srt-converter```    
     
-1. **Run the Docker Container**:
+2. **Run the Docker Container**:
 Use the following command to run the converter. Replace `/path/to/media` with the path to your directory containing SRT files and `/path/to/data` with your desired backup/log directory:
 
 ```docker run --rm -v /path/to/media:/media -v /path/to/data:/data spawnpeekboi/opencc-srt-converter```    
     
-1. **Example Command**:
+3. **Example Command**:
 Here’s an example of running the converter with a sample directory:
 
 ```docker run --rm -v $(pwd)/srt_files:/media -v $(pwd)/backups:/data spawnpeekboi/opencc-srt-converter```    
