@@ -14,16 +14,29 @@ This repository provides a Docker image for converting SRT (SubRip Subtitle) fil
 
 ## Table of Contents
 
-- [Overview](#overview)
-- [Docker Image Usage](#docker-image-usage)
-- [Docker Compose Setup](#docker-compose-setup)
-- [Building the Image](#building-the-image)
-- [Credits](#credits)
-- [License](#license)
+- [OpenCC SRT Converter](#opencc-srt-converter)
+  - [Table of Contents](#table-of-contents)
+  - [Overview](#overview)
+  - [Docker Image tag](#docker-image-tag)
+    - [Tag: `basic`](#tag-basic)
+    - [Tag: `latest`](#tag-latest)
+  - [Docker Image Usage](#docker-image-usage)
+  - [Docker Compose Setup](#docker-compose-setup)
+  - [Building the Image](#building-the-image)
+  - [Credits](#credits)
+  - [License](#license)
 
 ## Overview
 
-The OpenCC SRT Converter utilizes the OpenCC library to perform conversions between Simplified and Traditional Chinese. This Docker image encapsulates all necessary dependencies.
+The OpenCC SRT Converter utilizes the OpenCC library to perform translation of SRT files from Simplified Chinese to Traditional Chinese using the OpenCC library. It includes basic features such as reading SRT files, performing translations, and backing up original files. It will read from `/media` and search for any `.srt` in all directory including subfolder. After the inital deployment, all the original srt will be store at `/data` according to its origianl folder structure. A `translation_log.json` will be store at `/data`. Starting from second deployment, the program will compare the metadata of file with the same name as in the log, if all metadata are the same, the file will not be processed again.
+
+## Docker Image tag
+
+### Tag: `basic`
+This version of the image provides core functionality. This version only uses CRC64 and **does not** implement SHA-256 checksum validation or a cleanup function.
+
+### Tag: `latest`
+The latest version of the image also include SHA-256 checksum validation to ensure file integrity during processing. Additionally, it introduces a cleanup function for removing duplicate SRT files which occur when using Jellyfin opensubtitle plugin to run `download all missing subtitles`.
 
 ## Docker Image Usage
 
@@ -37,15 +50,12 @@ To use the OpenCC SRT Converter Docker image, follow these steps:
 2. **Run the Docker Container**:
 Use the following command to run the converter. Replace `/path/to/media` with the path to your directory containing SRT files and `/path/to/data` with your desired backup/log directory:
 
-```docker run --rm -v /path/to/media:/media -v /path/to/data:/data spawnpeekboi/opencc-srt-converter```    
+```docker run --rm -v /path/to/media:/media -v /path/to/data:/data spawnpeekboi/opencc-srt-converter```
+
+For using `tag:latest`
+
+```docker run --rm -e do_jellyfin_cleanup=true -v /path/to/media:/media -v /path/to/data:/data spawnpeekboi/opencc-srt-converter```
     
-3. **Example Command**:
-Here’s an example of running the converter with a sample directory:
-
-```docker run --rm -v $(pwd)/srt_files:/media -v $(pwd)/backups:/data spawnpeekboi/opencc-srt-converter```    
-
-This command will convert all SRT files in `srt_files`, back them up in `backups`, and replace them with their Traditional Chinese versions.
-
 ## Docker Compose Setup
 
 You can also use Docker Compose to simplify running the OpenCC SRT Converter. Below is an example `docker-compose.yml` file you can use:
@@ -55,11 +65,11 @@ version: '3.8'
 
 services:
   opencc-srt-converter:
-    image: spawnpeekboi/opencc-srt-converter
     volumes:
-      - /path/to/media:/media  # Path to your SRT files
-      - /path/to/data:/data     # Path for backups and logs
-    restart: unless-stopped
+      - /path/to/media:/media    # path to your jellyfin library
+      - /path/to/data:/data      # path to store config, metadata and backup original .srt file
+    environment:
+      - do_jellyfin_cleanup=true # Set to true or false as needed
 ```
 
 ## Building the Image
