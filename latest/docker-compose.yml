@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  opencc-srt-converter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - /path/to/media:/media    # path to your jellyfin library
+      - /path/to/data:/data      # path to store config, metadata and backup original .srt file
+    environment:
+      - do_jellyfin_cleanup=true # Set to true or false as needed
